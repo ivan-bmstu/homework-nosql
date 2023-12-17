@@ -37,8 +37,8 @@ public class RateLimiter {
             window_begin,
             current_time);
     if (request_count < maxRequestCount){
-      redis.incr("allRequest");
-      redis.zadd(key, current_time, redis.get("allRequest"));
+      redis.zadd(key, current_time, Long.toString(current_time));
+      redis.zremrangeByScore(key, 0, window_begin - 1);
       return true;
     }
     return false;
