@@ -32,13 +32,10 @@ public class RateLimiter {
     String key = label;
     long current_time = Instant.now().toEpochMilli();
     long window_begin = current_time - timeWindowSeconds * 1000;
-    long request_count = redis.zcount(
-            key,
-            window_begin,
-            current_time);
+    redis.zremrangeByScore(key, 0, window_begin - 1);
+    long request_count = redis.zcard(key);
     if (request_count < maxRequestCount){
       redis.zadd(key, current_time, Long.toString(current_time));
-      redis.zremrangeByScore(key, 0, window_begin - 1);
       return true;
     }
     return false;
